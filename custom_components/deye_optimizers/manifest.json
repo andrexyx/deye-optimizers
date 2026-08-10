@@ -1,10 +1,10 @@
 {
   "domain": "deye_optimizers",
   "name": "Deye Optimizers",
-  "version": "1.1.0",
-  "documentation": "https://github.com/andrexyx/deye-optimizers",
-  "issue_tracker": "https://github.com/andrexyx/deye-optimizers/issues",
   "codeowners": ["@andrexyx"],
+  "config_flow": true,
+  "documentation": "https://github.com/andrexyx/deye-optimizers",
   "iot_class": "cloud_polling",
-  "config_flow": true
+  "issue_tracker": "https://github.com/andrexyx/deye-optimizers/issues",
+  "version": "1.1.0"
 }
