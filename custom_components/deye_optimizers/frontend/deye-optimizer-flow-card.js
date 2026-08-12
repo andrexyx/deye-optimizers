@@ -46,6 +46,7 @@ class DeyeOptimizerFlowCard extends HTMLElement {
 
       // CULORI
       color_100: "#37d67a",
+      color_75: "#ecf542",
       color_50: "#f7c948",
       color_20: "#ff9800",
       color_0: "#ff4d4f",
@@ -156,6 +157,10 @@ class DeyeOptimizerFlowCard extends HTMLElement {
 
     if (p >= 100) {
       return this.config.color_100;
+    }
+
+    if (p >= 75) {
+      return this.config.color_75;
     }
 
     if (p >= 50) {
