@@ -42,6 +42,7 @@ class DeyeOptimizerFlowCard extends HTMLElement {
       show_total_power: true,
       show_percent: true,
       show_capacity: true,
+      show_today_energy: true,
 
       // CULORI
       color_100: "#37d67a",
@@ -180,6 +181,43 @@ class DeyeOptimizerFlowCard extends HTMLElement {
     }
 
     return `${Math.round(power)} W`;
+  }
+
+  getPanelEnergyToday(panel) {
+    const entity =
+      panel.energy_entity ??
+      String(panel.entity ?? "").replace(
+        /_input_power$/,
+        "_energy_today"
+      );
+
+    const stateObj = this._hass?.states?.[entity];
+    const value = Number(
+      String(stateObj?.state ?? "").replace(",", ".")
+    );
+
+    if (!Number.isFinite(value)) {
+      return 0;
+    }
+
+    const unit = String(
+      stateObj?.attributes?.unit_of_measurement ?? "kWh"
+    ).toLowerCase();
+
+    if (unit === "wh") {
+      return value / 1000;
+    }
+
+    if (unit === "mwh") {
+      return value * 1000;
+    }
+
+    return value;
+  }
+
+  formatTodayEnergy(value) {
+    const energy = Number(value) || 0;
+    return `${energy.toFixed(2)} kWh`;
   }
 
   truncateText(text, max = 14) {
@@ -580,6 +618,14 @@ class DeyeOptimizerFlowCard extends HTMLElement {
           ) * 100
         : 0;
 
+    const todayEnergy =
+      panels.reduce(
+        (sum, panel) =>
+          sum +
+          this.getPanelEnergyToday(panel),
+        0
+      );
+
     const panelItems =
       panels.map(
         (panel, index) => {
@@ -611,6 +657,7 @@ class DeyeOptimizerFlowCard extends HTMLElement {
 
               <div
                 class="panel-tile"
+                data-entity="${this.escapeHtml(panel.entity)}"
                 style="
                   --status-color:${color};
                   --panel-scale:${panelScale};
@@ -759,6 +806,14 @@ class DeyeOptimizerFlowCard extends HTMLElement {
           letter-spacing: 0.1px;
         }
 
+        .today {
+          margin-top: 3px;
+          color: #c8d2e3;
+          font-size: clamp(8px, 0.78vw, 11px);
+          font-weight: 500;
+          line-height: 1.1;
+        }
+
         /*
          * DREAPTA:
          *
@@ -895,6 +950,8 @@ class DeyeOptimizerFlowCard extends HTMLElement {
             );
 
           overflow: hidden;
+
+          cursor: pointer;
         }
 
         /* =================================
@@ -1199,8 +1256,19 @@ class DeyeOptimizerFlowCard extends HTMLElement {
             ${
               title
                 ? `
-                  <div class="title">
-                    ${this.escapeHtml(title)}
+                  <div>
+                    <div class="title">
+                      ${this.escapeHtml(title)}
+                    </div>
+                    ${
+                      this.config.show_today_energy
+                        ? `
+                          <div class="today">
+                            Today: ${this.formatTodayEnergy(todayEnergy)}
+                          </div>
+                        `
+                        : ""
+                    }
                   </div>
                 `
                 : `
@@ -1261,6 +1329,22 @@ class DeyeOptimizerFlowCard extends HTMLElement {
 
       </ha-card>
     `;
+
+    this.shadowRoot
+      .querySelectorAll(".panel-tile[data-entity]")
+      .forEach(tile => {
+        tile.addEventListener("click", () => {
+          this.dispatchEvent(
+            new CustomEvent("hass-more-info", {
+              detail: {
+                entityId: tile.dataset.entity,
+              },
+              bubbles: true,
+              composed: true,
+            })
+          );
+        });
+      });
   }
 }
 
