@@ -7,6 +7,13 @@ from .const import CONF_STATION_ID, CONF_TOKEN, PLATFORMS
 from .coordinator import DeyeOptimizerCoordinator
 
 
+async def async_migrate_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+    """Migrate configuration entries created by version 1."""
+    if entry.version == 1:
+        hass.config_entries.async_update_entry(entry, version=2)
+    return True
+
+
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Deye Optimizers from a config entry."""
     coordinator = DeyeOptimizerCoordinator(
@@ -30,4 +37,3 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 async def _async_reload_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
     """Reload after options change."""
     await hass.config_entries.async_reload(entry.entry_id)
-
