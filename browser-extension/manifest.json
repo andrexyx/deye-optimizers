@@ -1,0 +1,12 @@
+{
+  "manifest_version": 3,
+  "name": "Deye Token Assistant",
+  "version": "1.0.0",
+  "description": "Locally captures your Deye Cloud token and station ID after you sign in on the official website.",
+  "permissions": ["webRequest", "storage", "tabs"],
+  "host_permissions": [
+    "https://*.deyecloud.com/*"
+  ],
+  "background": {"service_worker": "service-worker.js"},
+  "action": {"default_title": "Deye Token Assistant", "default_popup": "popup.html"}
+}
