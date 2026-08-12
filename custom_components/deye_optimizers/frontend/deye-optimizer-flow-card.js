@@ -1334,14 +1334,19 @@ class DeyeOptimizerFlowCard extends HTMLElement {
       .querySelectorAll(".panel-tile[data-entity]")
       .forEach(tile => {
         tile.addEventListener("click", () => {
-          this.dispatchEvent(
-            new CustomEvent("hass-more-info", {
-              detail: {
-                entityId: tile.dataset.entity,
-              },
-              bubbles: true,
-              composed: true,
-            })
+          const path =
+            `/history?entity_id=${encodeURIComponent(
+              tile.dataset.entity
+            )}`;
+
+          window.history.pushState(
+            null,
+            "",
+            path
+          );
+
+          window.dispatchEvent(
+            new Event("location-changed")
           );
         });
       });
