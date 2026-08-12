@@ -38,6 +38,12 @@ Serial numbers in the screenshots are intentionally blurred.
 
 The illustrated token guide is in [docs/GET_DEYE_TOKEN.md](docs/GET_DEYE_TOKEN.md).
 
+### Deye Token Assistant
+
+Use the included [Deye Token Assistant](tools/token-assistant.html) to extract the bearer token and station ID from a Deye Cloud request copied as cURL. It runs entirely in the browser, makes no network requests, stores nothing, and never asks for your Deye password. Download the `tools` folder and open `token-assistant.html`, or use the hosted project page when available.
+
+Full instructions and security notes are in [docs/TOKEN_ASSISTANT.md](docs/TOKEN_ASSISTANT.md).
+
 ## Manual installation
 
 1. Download and extract the latest GitHub release.
