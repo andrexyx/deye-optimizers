@@ -1,0 +1,13 @@
+type: custom:deye-optimizer-flow-card
+title: String A
+columns: 5
+rows: 5
+orientation: portrait
+rated_power: 550
+panels:
+  # Add the 25 Input Power entities belonging to this string.
+  - entity: sensor.deye_optimizer_SERIAL01_input_power
+    name: A1
+  - entity: sensor.deye_optimizer_SERIAL02_input_power
+    name: A2
+  # Continue through A25.
