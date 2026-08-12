@@ -1,211 +1,177 @@
-import logging
+"""Deye Cloud data coordinator."""
+
+from __future__ import annotations
+
+import asyncio
+from copy import deepcopy
 from datetime import datetime, timedelta
+import logging
+from typing import Any
 from urllib.parse import quote
 
-from aiohttp import ClientError, ClientTimeout
+from aiohttp import ClientError, ClientResponseError, ClientTimeout
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryAuthFailed
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
-from homeassistant.helpers.update_coordinator import (
-    DataUpdateCoordinator,
-    UpdateFailed,
+from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
+
+from .const import (
+    BASE_URL,
+    CONF_SCAN_INTERVAL,
+    DEFAULT_RETRIES,
+    DEFAULT_SCAN_INTERVAL,
+    DEFAULT_TIMEOUT,
 )
 
 _LOGGER = logging.getLogger(__name__)
+SUPPORTED_VALUES = ("DV1", "DC1", "DP1", "Etdy_g1")
 
-BASE_URL = "https://www.deyecloud.com"
 
+class DeyeOptimizerCoordinator(DataUpdateCoordinator[dict[str, Any]]):
+    """Fetch and retain Deye optimizer telemetry."""
 
-class DeyeOptimizerCoordinator(DataUpdateCoordinator):
-    """Coordinator for Deye Power Optimizers."""
-
-    def __init__(
-        self,
-        hass: HomeAssistant,
-        config_entry: ConfigEntry,
-        token: str,
-        station_id: str,
-    ) -> None:
+    def __init__(self, hass: HomeAssistant, config_entry: ConfigEntry, token: str, station_id: str) -> None:
         self.token = token.split("|")[0].strip()
         self.station_id = str(station_id).strip()
         self.session = async_get_clientsession(hass)
-
+        self.last_successful_update: datetime | None = None
+        self.last_partial_error: str | None = None
+        interval = config_entry.options.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL)
         super().__init__(
             hass,
             _LOGGER,
             name="Deye Optimizers",
             config_entry=config_entry,
-            update_interval=timedelta(minutes=5),
+            update_interval=timedelta(seconds=interval),
         )
 
-    async def _request(self, url: str):
-        """Get JSON from Deye Cloud."""
+    async def _request(self, url: str) -> Any:
+        headers = {"Authorization": f"Bearer {self.token}", "Accept": "application/json"}
+        last_error: Exception | None = None
 
-        headers = {
-            "Authorization": f"Bearer {self.token}",
-            "Accept": "application/json",
-        }
+        for attempt in range(DEFAULT_RETRIES + 1):
+            try:
+                async with self.session.get(
+                    url, headers=headers, timeout=ClientTimeout(total=DEFAULT_TIMEOUT)
+                ) as response:
+                    if response.status in (401, 403):
+                        raise ConfigEntryAuthFailed("Deye Cloud token expired or invalid")
+                    if response.status != 200:
+                        body = await response.text()
+                        raise ClientResponseError(
+                            response.request_info,
+                            response.history,
+                            status=response.status,
+                            message=body[:160],
+                        )
+                    return await response.json(content_type=None)
+            except ConfigEntryAuthFailed:
+                raise
+            except (ClientError, asyncio.TimeoutError) as err:
+                last_error = err
+                if attempt < DEFAULT_RETRIES:
+                    await asyncio.sleep(0.75 * (2**attempt))
 
-        try:
-            async with self.session.get(
-                url,
-                headers=headers,
-                timeout=ClientTimeout(total=30),
-            ) as response:
-
-                if response.status == 401:
-                    raise ConfigEntryAuthFailed(
-                        "Deye Cloud token expired or invalid"
-                    )
-
-                if response.status != 200:
-                    text = await response.text()
-                    raise UpdateFailed(
-                        f"Deye Cloud HTTP {response.status}: {text[:200]}"
-                    )
-
-                return await response.json(content_type=None)
-
-        except ConfigEntryAuthFailed:
-            raise
-
-        except ClientError as err:
-            raise UpdateFailed(
-                f"Communication error with Deye Cloud: {err}"
-            ) from err
+        raise UpdateFailed(f"Deye Cloud request failed after retries: {last_error}")
 
     @staticmethod
-    def _latest_value(detail_list):
-        """Return the newest usable value from a Deye detailList."""
-
-        if not detail_list:
+    def _latest_value(detail_list: Any) -> Any:
+        if not isinstance(detail_list, list):
             return None
-
         for item in reversed(detail_list):
-
             if isinstance(item, (int, float)):
                 return item
-
             if isinstance(item, str):
                 try:
                     return float(item)
                 except ValueError:
                     continue
-
             if not isinstance(item, dict):
                 continue
-
-            for key in (
-                "value",
-                "val",
-                "data",
-                "v",
-                "y",
-                "deviceValue",
-                "paramValue",
-            ):
+            for key in ("value", "val", "data", "v", "y", "deviceValue", "paramValue"):
                 value = item.get(key)
-
                 if value in (None, ""):
                     continue
-
                 try:
                     return float(value)
                 except (TypeError, ValueError):
                     return value
-
         return None
 
-    async def _async_update_data(self):
-        """Fetch optimizer list and telemetry."""
-
-        list_url = (
-            f"{BASE_URL}/maintain-s/operating/station/"
-            f"{self.station_id}/common"
-            "?page=1"
-            "&size=50"
-            "&order.direction=ASC"
-            "&order.property=device_sn"
-            "&deviceType=OPTIMIZER"
-        )
-
-        result = await self._request(list_url)
-
-        devices = result.get("data", [])
-
-        if isinstance(devices, dict):
-            devices = devices.get("data", [])
-
-        if not isinstance(devices, list):
-            devices = []
-
-        optimizers = [
-            device
-            for device in devices
-            if str(device.get("type", "")).upper() == "OPTIMIZER"
+    @staticmethod
+    def _device_list(payload: Any) -> list[dict[str, Any]]:
+        data = payload.get("data", []) if isinstance(payload, dict) else []
+        if isinstance(data, dict):
+            data = data.get("data", data.get("content", []))
+        if not isinstance(data, list):
+            return []
+        return [
+            item for item in data
+            if isinstance(item, dict)
+            and str(item.get("type") or item.get("deviceType") or "").upper() == "OPTIMIZER"
         ]
 
-        today = quote(
-            datetime.now().strftime("%Y/%m/%d"),
-            safe="",
+    async def _async_update_data(self) -> dict[str, Any]:
+        list_url = (
+            f"{BASE_URL}/maintain-s/operating/station/{self.station_id}/common"
+            "?page=1&size=200&order.direction=ASC&order.property=device_sn&deviceType=OPTIMIZER"
         )
+        devices = self._device_list(await self._request(list_url))
+        previous = deepcopy(self.data or {})
+        output: dict[str, Any] = {}
+        partial_errors: list[str] = []
+        today = quote(datetime.now().strftime("%Y/%m/%d"), safe="")
 
-        output = {}
-
-        for optimizer in optimizers:
-
-            device_id = optimizer.get("id")
-
+        for optimizer in devices:
+            device_id = optimizer.get("id") or optimizer.get("deviceId")
             if not device_id:
                 continue
-
-            serial = (
+            key = str(device_id)
+            serial = str(
                 optimizer.get("deviceSn")
                 or optimizer.get("devicesn")
                 or optimizer.get("serial")
-                or str(device_id)
+                or key
             )
-
-            stats_url = (
-                f"{BASE_URL}/device-s/device/"
-                f"{device_id}/stats/day"
-                f"?day={today}&lan=en"
-            )
-
-            stats = await self._request(stats_url)
-
-            if isinstance(stats, dict):
-                stats = stats.get("data", stats)
-
-            if not isinstance(stats, list):
-                stats = []
-
-            values = {}
-
-            for series in stats:
-
-                storage_name = series.get("storageName")
-
-                if storage_name not in (
-                    "DV1",
-                    "DC1",
-                    "DP1",
-                    "Etdy_g1",
-                ):
-                    continue
-
-                values[storage_name] = self._latest_value(
-                    series.get("detailList", [])
+            old = previous.get(key, {})
+            values = dict(old.get("values", {}))
+            try:
+                stats = await self._request(
+                    f"{BASE_URL}/device-s/device/{device_id}/stats/day?day={today}&lan=en"
                 )
+                if isinstance(stats, dict):
+                    stats = stats.get("data", stats)
+                if not isinstance(stats, list):
+                    stats = []
+                for series in stats:
+                    if not isinstance(series, dict):
+                        continue
+                    storage_name = series.get("storageName")
+                    if storage_name in SUPPORTED_VALUES:
+                        value = self._latest_value(series.get("detailList", []))
+                        if value is not None:
+                            values[storage_name] = value
+            except UpdateFailed as err:
+                partial_errors.append(f"{serial}: {err}")
 
-            output[str(device_id)] = {
-                "id": str(device_id),
-                "serial": str(serial),
-                "site_id": optimizer.get("siteId"),
-                "type": optimizer.get("type"),
+            output[key] = {
+                "id": key,
+                "serial": serial,
+                "site_id": optimizer.get("siteId") or self.station_id,
+                "type": optimizer.get("type") or optimizer.get("deviceType") or "OPTIMIZER",
+                "status": optimizer.get("status") or optimizer.get("deviceStatus"),
                 "values": values,
+                "last_update": datetime.now().isoformat(timespec="seconds"),
             }
 
+        if not output and previous:
+            raise UpdateFailed("Deye Cloud returned no optimizers; keeping the last valid dataset")
+
+        self.last_successful_update = datetime.now()
+        self.last_partial_error = "; ".join(partial_errors) if partial_errors else None
+        if partial_errors:
+            _LOGGER.warning("Partial optimizer update; retained last valid values: %s", self.last_partial_error)
         return output
+
