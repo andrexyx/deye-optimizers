@@ -1,0 +1,10 @@
+{
+  "config": {
+    "step": {"user": {"title": "Connect to Deye Cloud", "data": {"token": "Deye Cloud token", "station_id": "Station ID"}}},
+    "abort": {"already_configured": "This station is already configured."}
+  },
+  "options": {
+    "step": {"init": {"title": "Deye Optimizers options", "data": {"scan_interval": "Refresh interval (seconds)"}}}
+  }
+}
+

@@ -4,7 +4,9 @@
   "codeowners": ["@andrexyx"],
   "config_flow": true,
   "documentation": "https://github.com/andrexyx/deye-optimizers",
+  "integration_type": "hub",
   "iot_class": "cloud_polling",
   "issue_tracker": "https://github.com/andrexyx/deye-optimizers/issues",
-  "version": "1.1.0"
+  "version": "2.0.0"
 }
+
