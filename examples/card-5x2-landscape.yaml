@@ -1,0 +1,18 @@
+type: custom:deye-optimizer-flow-card
+title: Panouri Est
+columns: 5
+rows: 2
+orientation: landscape
+rated_power: 550
+panels:
+  - sensor.deye_optimizer_SERIAL1_input_power
+  - sensor.deye_optimizer_SERIAL2_input_power
+  - sensor.deye_optimizer_SERIAL3_input_power
+  - sensor.deye_optimizer_SERIAL4_input_power
+  - sensor.deye_optimizer_SERIAL5_input_power
+  - sensor.deye_optimizer_SERIAL6_input_power
+  - sensor.deye_optimizer_SERIAL7_input_power
+  - sensor.deye_optimizer_SERIAL8_input_power
+  - sensor.deye_optimizer_SERIAL9_input_power
+  - sensor.deye_optimizer_SERIAL10_input_power
+

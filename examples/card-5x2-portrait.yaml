@@ -1,0 +1,37 @@
+type: custom:deye-optimizer-flow-card
+title: Panouri Sud
+columns: 5
+rows: 2
+orientation: portrait
+rated_power: 550
+gap: 6
+show_header: true
+show_total_power: true
+show_percent: true
+show_empty_slots: false
+color_100: "#37d67a"
+color_60: "#f7c948"
+color_20: "#ff9800"
+color_0: "#ff4d4f"
+panels:
+  - entity: sensor.deye_optimizer_SERIAL1_input_power
+    name: P1
+  - entity: sensor.deye_optimizer_SERIAL2_input_power
+    name: P2
+  - entity: sensor.deye_optimizer_SERIAL3_input_power
+    name: P3
+  - entity: sensor.deye_optimizer_SERIAL4_input_power
+    name: P4
+  - entity: sensor.deye_optimizer_SERIAL5_input_power
+    name: P5
+  - entity: sensor.deye_optimizer_SERIAL6_input_power
+    name: P6
+  - entity: sensor.deye_optimizer_SERIAL7_input_power
+    name: P7
+  - entity: sensor.deye_optimizer_SERIAL8_input_power
+    name: P8
+  - entity: sensor.deye_optimizer_SERIAL9_input_power
+    name: P9
+  - entity: sensor.deye_optimizer_SERIAL10_input_power
+    name: P10
+
