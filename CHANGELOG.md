@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.1.1
+
+- Added a beginner-friendly Chrome/Edge extension that captures the token and station automatically after normal Deye Cloud sign-in.
+- Removed Developer Tools from the recommended setup path.
+- Added Chrome and Edge installation instructions and a downloadable extension package.
+
 ## 2.1.0
 
 - Added the privacy-first Deye Token Assistant.

@@ -1,0 +1,6 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Deye Token Assistant</title><link rel="stylesheet" href="popup.css"></head>
+<body><main><h1>Deye Token Assistant</h1><p class="safe">Local only · no password · no upload</p>
+  <section id="waiting"><ol><li>Open Deye Cloud below.</li><li>Sign in on the official Deye page.</li><li>Open your station. The assistant captures the required values automatically.</li><li>Open this extension again.</li></ol><button id="open">Open Deye Cloud</button><p class="hint">Already signed in? Open a station and refresh it once.</p></section>
+  <section id="ready" hidden><p class="success">Ready for Home Assistant</p><label>Token<input id="token" type="password" readonly></label><button data-copy="token">Copy token</button><button id="reveal" class="secondary">Reveal 8 sec</button><label>Station ID<select id="stations"></select></label><button data-copy="stations">Copy station ID</button><hr><p>Paste both values in <b>Deye Optimizers</b>.</p><button id="clear" class="danger">Clear captured data</button></section>
+  <p id="status" aria-live="polite"></p><a href="https://andrexyx.github.io/deye-optimizers/tools/token-assistant.html" target="_blank">Manual fallback</a>
+</main><script src="popup.js"></script></body></html>
