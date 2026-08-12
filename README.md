@@ -40,7 +40,9 @@ The illustrated token guide is in [docs/GET_DEYE_TOKEN.md](docs/GET_DEYE_TOKEN.m
 
 ### Deye Token Assistant
 
-Use the included [Deye Token Assistant](tools/token-assistant.html) to extract the bearer token and station ID from a Deye Cloud request copied as cURL. It runs entirely in the browser, makes no network requests, stores nothing, and never asks for your Deye password. Download the `tools` folder and open `token-assistant.html`, or use the hosted project page when available.
+For beginners, use the **Deye Token Assistant browser extension** from the latest release. Sign in on the official Deye Cloud page, open your station, and the extension detects the token and station ID automatically—no Developer Tools and no Deye password entered into the extension. Follow the [beginner guide](docs/BEGINNER_TOKEN_GUIDE.md).
+
+The [manual web assistant](https://andrexyx.github.io/deye-optimizers/tools/token-assistant.html) remains available as a fallback for advanced users.
 
 Full instructions and security notes are in [docs/TOKEN_ASSISTANT.md](docs/TOKEN_ASSISTANT.md).
 
