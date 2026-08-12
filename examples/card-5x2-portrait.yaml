@@ -7,7 +7,6 @@ rated_power: 550
 gap: 6
 show_header: true
 show_total_power: true
-show_today_energy: true
 show_percent: true
 show_empty_slots: false
 color_100: "#37d67a"

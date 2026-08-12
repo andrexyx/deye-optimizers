@@ -1,11 +1,5 @@
 # Changelog
 
-## 2.1.2
-
-- Open the standard Home Assistant entity history dialog by clicking or using the keyboard on a panel.
-- Show the summed daily energy produced by the visible panels below the card title.
-- Support an explicit `energy_entity` per panel when custom entity IDs are used.
-
 ## 2.1.1
 
 - Added a beginner-friendly Chrome/Edge extension that captures the token and station automatically after normal Deye Cloud sign-in.

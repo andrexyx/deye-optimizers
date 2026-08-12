@@ -1,6 +1,6 @@
-# Deye Optimizers 2.1.2
+# Deye Optimizers 2.0
 
-Community Home Assistant integration for Deye Power Optimizers through Deye Cloud. Version 2.1.2 includes stable optimizer sensors, resilient polling, diagnostics, and the **Deye Optimizer Flow** dashboard card.
+Community Home Assistant integration for Deye Power Optimizers through Deye Cloud. Version 2.0 includes stable optimizer sensors, resilient polling, diagnostics, and the **Deye Optimizer Flow** dashboard card.
 
 > **Solarman is not required.** This integration connects directly to Deye Cloud using your Deye token and station ID. You can use the Solarman integration separately for inverter data, but it is not a dependency of Deye Optimizers.
 
@@ -82,7 +82,7 @@ to:
 Then add a dashboard resource:
 
 ```yaml
-url: /local/deye-optimizer-flow-card.js?v=2.1.2
+url: /local/deye-optimizer-flow-card.js?v=2.0.0
 type: module
 ```
 
@@ -116,16 +116,11 @@ Both `columns` and `rows` accept values from 1 to 6. The card never changes them
 | `gap` | `6` | Maximum gap in pixels |
 | `show_header` | `true` | Show title and total power |
 | `show_total_power` | `true` | Show total visible power |
-| `show_today_energy` | `true` | Show the summed `Energy Today` value below the title |
-| `today_energy_label` | `Produced today` | Label used for the daily-production total |
 | `show_percent` | `true` | Show production percentage |
 | `show_empty_slots` | `false` | Render unused positions as muted slots |
 | `color_100`, `color_60`, `color_20`, `color_0` | included | Production colors |
 
-Each panel may be a simple entity string or an object with `entity`, `name`, and optional per-panel `rated_power`.
-Click or press Enter on a panel to open its standard Home Assistant history dialog. The card derives each daily-energy
-entity by replacing `_input_power` with `_energy_today`; set `energy_entity` on a panel when your entity ID does not
-follow that convention. Complete portrait and landscape files are in [`examples/`](examples/).
+Each panel may be a simple entity string or an object with `entity`, `name`, and optional per-panel `rated_power`. Complete portrait and landscape files are in [`examples/`](examples/).
 
 ### Four strings with up to 25 panels each
 
