@@ -1,11 +1,13 @@
 {
-  "domain": "deye_optimizers",
-  "name": "Deye Optimizers",
-  "codeowners": ["@andrexyx"],
-  "config_flow": true,
-  "documentation": "https://github.com/andrexyx/deye-optimizers",
-  "integration_type": "hub",
-  "iot_class": "cloud_polling",
-  "issue_tracker": "https://github.com/andrexyx/deye-optimizers/issues",
-  "version": "2.1.4"
+    "domain":  "deye_optimizers",
+    "integration_type":  "hub",
+    "iot_class":  "cloud_polling",
+    "config_flow":  true,
+    "version":  "2.1.5",
+    "issue_tracker":  "https://github.com/andrexyx/deye-optimizers/issues",
+    "name":  "Deye Optimizers",
+    "documentation":  "https://github.com/andrexyx/deye-optimizers",
+    "codeowners":  [
+                       "@andrexyx"
+                   ]
 }
