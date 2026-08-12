@@ -1339,15 +1339,7 @@ class DeyeOptimizerFlowCard extends HTMLElement {
               tile.dataset.entity
             )}`;
 
-          window.history.pushState(
-            null,
-            "",
-            path
-          );
-
-          window.dispatchEvent(
-            new Event("location-changed")
-          );
+          window.location.assign(path);
         });
       });
   }
