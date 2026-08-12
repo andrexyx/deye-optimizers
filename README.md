@@ -2,6 +2,8 @@
 
 Community Home Assistant integration for Deye Power Optimizers through Deye Cloud. Version 2.0 includes stable optimizer sensors, resilient polling, diagnostics, and the **Deye Optimizer Flow** dashboard card.
 
+> **Solarman is not required.** This integration connects directly to Deye Cloud using your Deye token and station ID. You can use the Solarman integration separately for inverter data, but it is not a dependency of Deye Optimizers.
+
 > This is not an official Deye integration. Never publish your Deye token.
 
 ## Features
@@ -104,4 +106,3 @@ Each panel may be a simple entity string or an object with `entity`, `name`, and
 ## HACS publication readiness
 
 The repository contains HACS and Hassfest workflows, `hacs.json`, version metadata, documentation, examples, and a changelog. After field testing, create release `v2.0.0` and submit the repository for inclusion in the HACS default list.
-
