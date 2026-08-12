@@ -12,8 +12,12 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.13"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
       - name: Compile Python
         run: python -m compileall custom_components
       - name: Validate JSON
         run: python -c "import json,pathlib; [json.loads(p.read_text()) for p in pathlib.Path('.').rglob('*.json')]"
-
+      - name: Test Deye Token Assistant
+        run: node tests/test_token_assistant.js
