@@ -3,7 +3,7 @@
     "integration_type":  "hub",
     "iot_class":  "cloud_polling",
     "config_flow":  true,
-    "version":  "2.1.5",
+    "version":  "2.1.6",
     "issue_tracker":  "https://github.com/andrexyx/deye-optimizers/issues",
     "name":  "Deye Optimizers",
     "documentation":  "https://github.com/andrexyx/deye-optimizers",
